@@ -1,4 +1,6 @@
 #include "openbox/actions.h"
+#include "openbox/client.h"
+#include "openbox/config.h"
 #include "openbox/event.h"
 #include "openbox/stacking.h"
 #include "openbox/window.h"
@@ -247,7 +249,17 @@ static gboolean run_func(ObActionsData *data, gpointer options)
         cycling = TRUE;
 
         stacking_restore();
-        if (o->raise && ft) stacking_temp_raise(CLIENT_AS_WINDOW(ft));
+
+		if (o->raise && ft) {
+			stacking_temp_raise(CLIENT_AS_WINDOW(ft));
+			if (config_focus_under_mouse) {
+				XWarpPointer(obt_display, None, window_top(CLIENT_AS_WINDOW(ft)),
+						0, 0, 0, 0,
+						ft->area.width / 2,
+						ft->area.height / 2);
+			}
+		}
+
     }
 
     return o->interactive;
